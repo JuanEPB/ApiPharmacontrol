@@ -7,7 +7,10 @@ import {
     Put,
     NotFoundException,
     Delete,
+    UseGuards,
+    Request,
   } from '@nestjs/common';
+  import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
   import { UsersService } from './users.service';
   import { CreateUsuarioDto } from './dto/create_users.dto';
   import { UpdateUsuarioDto } from './dto/update_users.dto';
@@ -30,6 +33,14 @@ import { Usuario } from './entity/users.entity';
       }
       return user;
     }
+    @Get('/email/:email')
+    async findByEmail(@Param('email') email: string){
+      const user  = await this.usersService.findByEmail(email);
+      if (!user) {
+        throw new NotFoundException(`Usuario con el correo ${email} no encontrado`);
+      }
+      return user;
+    }
   
     @Post('create')
     create(@Body() createUsuarioDto: CreateUsuarioDto) {
@@ -46,5 +57,13 @@ import { Usuario } from './entity/users.entity';
         return this.usersService.findAndDelete(id)
 
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('perfil')
+    getPerfil(@Request() req) {
+      return req.user;
+    }
   }
+
+  
   

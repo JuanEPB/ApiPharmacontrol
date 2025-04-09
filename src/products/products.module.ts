@@ -9,6 +9,7 @@ import { Categoria } from 'src/categorias/entity/categorias.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Medicamentos, Proveedor, Categoria])],
   providers: [MedicamentosService],
-  controllers: [MedicamentosController]
+  controllers: [MedicamentosController],
+  exports: [ProductsModule]
 })
 export class ProductsModule {}
