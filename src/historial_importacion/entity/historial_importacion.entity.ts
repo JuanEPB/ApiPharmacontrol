@@ -10,10 +10,10 @@ export class HistorialImportacion {
   @Column({ type: 'timestamp' })
   fecha: Date;
 
-  @ManyToOne(() => Usuario, usuario => usuario.historialImportaciones)
+  @ManyToOne(() => Usuario)
   usuario: Usuario;
 
-  @ManyToOne(() => Medicamentos, medicamento => medicamento.id)
+  @ManyToOne(() => Medicamentos)
   medicamento: Medicamentos;
 
   @Column()

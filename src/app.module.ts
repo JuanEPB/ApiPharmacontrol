@@ -13,6 +13,7 @@ import { HistorialExportacionModule } from './historial_exportacion/historial_ex
 import { Medicamentos } from './products/entity/products.entity';
 import { Proveedor } from './proveedor/entity/proveedor.entity';
 import { Categoria } from './categorias/entity/categorias.entity';
+import { Usuario } from './users/entity/users.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { Categoria } from './categorias/entity/categorias.entity';
       username: 'root',
       password:'',
       database:'pharmacontrol',
-      entities: [Medicamentos,Proveedor, Categoria],
+      entities: [Medicamentos,Proveedor, Categoria, Usuario],
       synchronize: true,
     })
     ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule],
