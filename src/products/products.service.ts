@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Medicamentos } from './entity/products.entity';
-import { Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Proveedor } from 'src/proveedor/entity/proveedor.entity';
 import { Categoria } from 'src/categorias/entity/categorias.entity';
 import { CreateMedicamentoDto } from './dto/create_product.dto';
 import { UpdateMedicamentoDto } from './dto/update_medicamento.dto';
+import { LessThan } from 'typeorm';
 
 @Injectable()
 export class MedicamentosService {
@@ -102,4 +103,112 @@ export class MedicamentosService {
     // Eliminamos el medicamento
     return this.medicamentoRepository.remove(medicamento);
   }
+
+  async contarMedicamentos(): Promise<number> {
+    return await this.medicamentoRepository.count();
+  }
+
+  async countByName(name: string): Promise<{ total: number }> {
+    const count = await this.medicamentoRepository.count({
+      where: { nombre: name },
+    });
+    return { total: count };
+  }
+  
+  async dataCaducidadMedicamentos(): Promise<{ total: number, medicamentos: Medicamentos[] }> {
+  const today = new Date();
+  const monthsLater = new Date();
+  monthsLater.setMonth(today.getMonth() + 18);  
+  const medicamentos = await this.medicamentoRepository.find({
+    where: {
+      caducidad: Between(today, monthsLater), // Medicamentos que caducan entre hoy y 18 meses
+    },
+    relations: ['proveedor', 'categoria'],
+  });
+  const total = medicamentos.length;
+  return { total, medicamentos };
+}
+
+
+async caducidadMedicamentos(): Promise<Medicamentos[]> {
+  const today = new Date();
+  const monthsLater = new Date();
+  monthsLater.setMonth(today.getMonth() + 18);
+
+  return this.medicamentoRepository.find({
+    where: {
+      caducidad: Between(today, monthsLater), // Medicamentos que caducan entre hoy y 3 meses
+    },
+    relations: ['proveedor', 'categoria'],
+  });
+}
+
+  async lowStockMedicamentos(): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        stock: LessThan(10), // Filtra medicamentos cuyo stock es menor a 10
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+
+  async findByName(name: string): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        nombre: name,
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+
+  async findByLote(lote: string): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        lote: lote,
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+  async findByCaducidad(caducidad: Date): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        caducidad: caducidad,
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+  async findByStock(stock: number): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        stock: stock,
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+  async findByPrecio(precio: number): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        precio: precio,
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+  async findByProveedor(proveedorId: number): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        proveedor: { id: proveedorId },
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+  async findByCategoria(categoriaId: number): Promise<Medicamentos[]> {
+    return this.medicamentoRepository.find({
+      where: {
+        categoria: { id: categoriaId },
+      },
+      relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
+    });
+  }
+
+  
 }

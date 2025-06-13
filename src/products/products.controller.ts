@@ -8,10 +8,20 @@ import { Medicamentos } from './entity/products.entity';
 export class MedicamentosController {
   constructor(private readonly medicamentosService: MedicamentosService) {}
 
-  @Get('/all')
-  async getAll() {
-    return await this.medicamentosService.findAll();
-  }
+    @Get('/all')
+    async getAll() {
+      return await this.medicamentosService.findAll();
+    }
+    @Get('count')
+    async contar(): Promise<{ total: number }> {
+      const total = await this.medicamentosService.contarMedicamentos();
+      return { total };
+    }
+    @Get('caducidad')
+    async getMedicamentosCaducidad(): Promise<{ total: number, medicamentos: Medicamentos[] }> {
+      return await this.medicamentosService.dataCaducidadMedicamentos();
+    }
+
 
     // Obtener un medicamento por su ID
     @Get('/:id')
@@ -38,6 +48,14 @@ export class MedicamentosController {
     @Delete('/delete/:id')
     delete(@Param('id') id: number): Promise<Medicamentos | null> {
       return this.medicamentosService.delete(id);
+    }
+
+    
+
+    @Get('count/nombre/:nombre')
+    async countByNombre(@Param('nombre') nombre: string) {
+      const total = await this.medicamentosService.countByName(nombre);
+      return {total};
     }
 
 }
