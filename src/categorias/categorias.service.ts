@@ -47,28 +47,4 @@ export class CategoriasService {
         return this.categoriaRepository.remove(categoria);
     }
 
-
-    // Aquí puedes implementar los métodos necesarios para manejar las categorías
-    // como crear, actualizar, eliminar y listar categorías.
-    // Por ejemplo:
-    
-    // async create(createCategoriaDto: CreateCategoriaDto) {
-    //   // Lógica para crear una categoría
-    // }
-    
-    // async findAll() {
-    //   // Lógica para obtener todas las categorías
-    // }
-    
-    // async findOne(id: number) {
-    //   // Lógica para obtener una categoría por ID
-    // }
-    
-    // async update(id: number, updateCategoriaDto: UpdateCategoriaDto) {
-    //   // Lógica para actualizar una categoría
-    // }
-    
-    // async delete(id: number) {
-    //   // Lógica para eliminar una categoría
-    // }
 }

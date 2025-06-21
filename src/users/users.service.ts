@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Admin, Repository } from 'typeorm';
 import { Usuario } from './entity/users.entity';
 import { CreateUsuarioDto } from './dto/create_users.dto';
 import { UpdateUsuarioDto } from './dto/update_users.dto';
 import * as bcrypt from 'bcryptjs';
+import { Rol } from './dto/roles.enum';
 
 @Injectable()
 export class UsersService {
@@ -56,5 +57,9 @@ export class UsersService {
     }
     
     return this.usersRepository.remove(usuario);    
+  }
+
+  async findByRole(role: Rol): Promise<Usuario[]> {
+    return this.usersRepository.find({ where: { rol: role } });
   }
 }

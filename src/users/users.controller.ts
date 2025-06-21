@@ -41,6 +41,16 @@ import { Usuario } from './entity/users.entity';
       }
       return user;
     }
+
+    @Get('rol/:rol')
+    async findByRol(@Param('rol') rol: string) {
+      const users = await this.usersService.findAll();
+      const filteredUsers = users.filter(user => user.rol === rol);
+      if (filteredUsers.length === 0) {
+        throw new NotFoundException(`No se encontraron usuarios con el rol ${rol}`);
+      }
+      return filteredUsers;
+    }
   
     @Post('create')
     create(@Body() createUsuarioDto: CreateUsuarioDto) {

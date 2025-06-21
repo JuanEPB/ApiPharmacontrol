@@ -57,6 +57,7 @@ export class MedicamentosService {
       categoria,  // Asignamos la relación con categoria
     });
 
+
     // Guardamos el medicamento en la base de datos
     return this.medicamentoRepository.save(medicamento);
   }
@@ -83,6 +84,11 @@ export class MedicamentosService {
       if (categoria) {
         medicamento.categoria = categoria;
       }
+    }
+
+    if (medicamento.lote){
+      
+
     }
 
     // Actualizamos las propiedades del medicamento
