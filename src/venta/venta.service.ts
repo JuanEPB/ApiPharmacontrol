@@ -39,7 +39,7 @@ export class VentaService {
   for (const d of createVentaDto.detalles) {
     const medicamento = await this.medicamentoRepo.findOneBy({ id: d.medicamentoId });
     if (!medicamento) throw new NotFoundException('Medicamento no encontrado');
-    if (medicamento.stock < d.cantidad) throw new Error(`Stock insuficiente para ${medicamento.nombre}`);
+    if (medicamento.stock < d.cantidad) throw new NotFoundException(`Stock insuficiente para ${medicamento.nombre}`);
 
     medicamento.stock -= d.cantidad;
     await this.medicamentoRepo.save(medicamento);
