@@ -2,14 +2,16 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {  // <-- nombre 'jwt'
+  constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: 'pharmasecret', // Mejor usar una variable de entorno
+      secretOrKey: configService.get<string>('JWT_SECRET') || 'secret',
     });
   }
 
@@ -17,3 +19,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return { userId: payload.sub, correo: payload.username };
   }
 }
+

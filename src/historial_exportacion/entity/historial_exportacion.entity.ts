@@ -1,24 +1,19 @@
+// historial-exportacion.entity.ts
+
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Usuario } from 'src/users/entity/users.entity';
-import { Medicamentos } from 'src/products/entity/products.entity';
 
 @Entity()
 export class HistorialExportacion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   fecha: Date;
 
-  @ManyToOne(() => Usuario)
+  @ManyToOne(() => Usuario, { eager: true })
   usuario: Usuario;
 
-  @ManyToOne(() => Medicamentos)
-  medicamento: Medicamentos;
-
-  @Column()
-  cantidad: number;
-
-  @Column({ type: 'text' })
-  detalles: string;
+  @Column({ type: 'text' }) // puedes guardar el ID del documento de Mongo aquí
+  documento: string;
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin, Repository } from 'typeorm';
 import { Usuario } from './entity/users.entity';
@@ -40,15 +40,19 @@ export class UsersService {
   }
 
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto): Promise<Usuario> {
-    const user = await this.usersRepository.findOne({ where: { id } });
-
-    if (!user) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
-    }
-
-    const updatedUser = Object.assign(user, updateUsuarioDto);
-    return this.usersRepository.save(updatedUser);
+  if (Object.keys(updateUsuarioDto).length === 0) {
+    throw new BadRequestException('No se proporcionaron datos para actualizar');
   }
+
+  const user = await this.usersRepository.findOne({ where: { id } });
+  if (!user) {
+    throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+  }
+
+  const updatedUser = Object.assign(user, updateUsuarioDto);
+  return this.usersRepository.save(updatedUser);
+}
+
   async findAndDelete(id: number): Promise<Usuario | null>{
     const usuario = await this.usersRepository.findOneBy({id})
 
