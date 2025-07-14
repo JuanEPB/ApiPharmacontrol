@@ -19,6 +19,9 @@ import { ConfigModule } from '@nestjs/config';
 import { DocumentoModule } from './documento/documento.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HistorialExportacion } from './historial_exportacion/entity/historial_exportacion.entity';
+import { VentaModule } from './venta/venta.module';
+import { Venta } from './venta/entities/venta.entity';
+import { VentaDetalle } from './venta/entities/venta_detalle.entity';
 
 
 
@@ -35,10 +38,10 @@ import { HistorialExportacion } from './historial_exportacion/entity/historial_e
       username: 'root',
       password:'',
       database:'pharmacontrol',
-      entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion],
+      entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion, Venta, VentaDetalle],
       synchronize: true,
     })
-    ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule, AuthModule, DocumentoModule],
+    ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule, AuthModule, DocumentoModule, VentaModule],
   controllers: [AppController, HistorialImportacionController],
   providers: [AppService, HistorialImportacionService],
 })
