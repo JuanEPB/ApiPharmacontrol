@@ -29,9 +29,9 @@ export class VentaService {
     private readonly historialService: HistorialExportacionService,
   ) {}
 
-  async crearVenta(createVentaDto: CreateVentaDto, usuario: Usuario) {
+  async crearVenta(createVentaDto: CreateVentaDto, userId: number) {
   // Obtener usuario completo con id desde la base de datos
-  const usuarioCompleto = await this.usuarioRepo.findOneBy({ id: usuario.id });
+  const usuarioCompleto = await this.usuarioRepo.findOneBy({ id: userId});
   if (!usuarioCompleto) throw new NotFoundException('Usuario no encontrado');
 
   const detalles: VentaDetalle[] = [];

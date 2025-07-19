@@ -13,6 +13,7 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
+    console.log('usuario: ', user); 
     return this.authService.login(user);
   }
 }

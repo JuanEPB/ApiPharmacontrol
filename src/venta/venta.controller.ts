@@ -2,17 +2,16 @@ import { Controller, Post, Body, UseGuards, UsePipes, ValidationPipe } from '@ne
 import { VentaService } from './venta.service';
 import { CreateVentaDto } from './dto/create-venta.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { User } from 'src/auth/user.decorator';
-import { Usuario } from 'src/users/entity/users.entity';
+import { UserId } from 'src/auth/user.decorator';
 
 @Controller('venta')
 export class VentaController {
   constructor(private readonly ventaService: VentaService) {}
 
-  @Post()
   @UseGuards(JwtAuthGuard)
+  @Post()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async crearVenta(@Body() dto: CreateVentaDto, @User() usuario: Usuario) {
-    return this.ventaService.crearVenta(dto, usuario);
+  async crearVenta(@Body() dto: CreateVentaDto, @UserId() userId: number) {
+    return this.ventaService.crearVenta(dto, userId);
   }
 }
