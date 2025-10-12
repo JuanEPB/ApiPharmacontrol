@@ -7,6 +7,7 @@ import { Categoria } from 'src/categorias/entity/categorias.entity';
 import { CreateMedicamentoDto } from './dto/create_product.dto';
 import { UpdateMedicamentoDto } from './dto/update_medicamento.dto';
 import { LessThan } from 'typeorm';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class MedicamentosService {
@@ -214,6 +215,40 @@ async caducidadMedicamentos(): Promise<Medicamentos[]> {
       },
       relations: ['proveedor', 'categoria'], // Incluye relaciones si es necesario
     });
+  }
+
+   async getStats() {
+    const hoy = dayjs();
+    const limite = hoy.add(30, 'day').toDate();
+
+    // Total de medicamentos
+    const total = await this.medicamentoRepository.count();
+
+    // Por caducar en los próximos 30 días
+    const porCaducar = await this.medicamentoRepository.count({
+      where: { caducidad: Between(hoy.toDate(), limite) },
+    });
+
+    // Ya caducados
+    const caducados = await this.medicamentoRepository.count({
+      where: { caducidad: LessThan(hoy.toDate()) },
+    });
+
+    // Agrupar por categoría
+    const porCategoriaQuery = await this.medicamentoRepository
+      .createQueryBuilder('medicamento')
+      .select('categoria.nombre', 'categoria')
+      .addSelect('COUNT(medicamento.id)', 'total')
+      .leftJoin('medicamento.categoria', 'categoria')
+      .groupBy('categoria.nombre')
+      .getRawMany();
+
+    const porCategoria = porCategoriaQuery.reduce(
+      (acc, cur) => ({ ...acc, [cur.categoria || 'Sin categoría']: Number(cur.total) }),
+      {},
+    );
+
+    return { total, porCaducar, caducados, porCategoria };
   }
 
   

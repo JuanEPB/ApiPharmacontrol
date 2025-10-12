@@ -27,7 +27,7 @@ import { VentaDetalle } from './venta/entities/venta_detalle.entity';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/pharmacontrol',), 
+    MongooseModule.forRoot('mongodb+srv://larts:yj7yZjRZIBMr3TJa@pharmacontrol.1aqn71v.mongodb.net/pharmacontrol',), 
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -37,7 +37,7 @@ import { VentaDetalle } from './venta/entities/venta_detalle.entity';
       port: 3306,
       username: 'root',
       password:'',
-      database:'pharmacontrol',
+      database:'control',
       entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion, Venta, VentaDetalle],
       synchronize: true,
     })

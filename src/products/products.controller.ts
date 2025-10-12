@@ -21,6 +21,11 @@ export class MedicamentosController {
     async getMedicamentosCaducidad(): Promise<{ total: number, medicamentos: Medicamentos[] }> {
       return await this.medicamentosService.dataCaducidadMedicamentos();
     }
+    
+    @Get('stats')
+    async getStats(): Promise<{ total: number; porCaducar: number; caducados: number; porCategoria: Record<string, number>; }> {
+    return this.medicamentosService.getStats();
+  }
 
 
     // Obtener un medicamento por su ID
