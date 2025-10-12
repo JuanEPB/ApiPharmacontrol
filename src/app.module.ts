@@ -27,7 +27,7 @@ import { VentaDetalle } from './venta/entities/venta_detalle.entity';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://larts:yj7yZjRZIBMr3TJa@pharmacontrol.1aqn71v.mongodb.net/pharmacontrol',), 
+    MongooseModule.forRoot('',), 
     ConfigModule.forRoot({
       isGlobal: true,
     }),
