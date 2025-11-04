@@ -5,10 +5,19 @@ import { VentaService } from './venta.service';
 describe('VentaController', () => {
   let controller: VentaController;
 
+  const mockVentaService = {
+    crearVenta: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [VentaController],
-      providers: [VentaService],
+      providers: [
+        {
+          provide: VentaService,
+          useValue: mockVentaService,
+        },
+      ],
     }).compile();
 
     controller = module.get<VentaController>(VentaController);

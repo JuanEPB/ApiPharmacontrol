@@ -22,12 +22,21 @@ import { HistorialExportacion } from './historial_exportacion/entity/historial_e
 import { VentaModule } from './venta/venta.module';
 import { Venta } from './venta/entities/venta.entity';
 import { VentaDetalle } from './venta/entities/venta_detalle.entity';
+import { EmpresaModule } from './empresa/empresa.module';
+import { PlanModule } from './plan/plan.module';
+import { SuscripcionModule } from './suscripcion/suscripcion.module';
+import { ConfiguracionModule } from './configuracion/configuracion.module';
+import { FarmaciaModule } from './farmacia/farmacia.module';
+import { Plan } from './plan/entities/plan.entity';
+import { Suscripcion } from './suscripcion/entities/suscripcion.entity';
+import { Farmacia } from './farmacia/entities/farmacia.entity';
+import { Empresa } from './empresa/entities/empresa.entity';
 
 
 
 @Module({
   imports: [
-    MongooseModule.forRoot('',), 
+    MongooseModule.forRoot('mongodb://localhost:27017/pharmacontrol'),  
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -38,10 +47,10 @@ import { VentaDetalle } from './venta/entities/venta_detalle.entity';
       username: 'root',
       password:'',
       database:'control',
-      entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion, Venta, VentaDetalle],
+      entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion, Venta, VentaDetalle, Plan, Suscripcion, Farmacia, Empresa],
       synchronize: true,
     })
-    ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule, AuthModule, DocumentoModule, VentaModule],
+    ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule, AuthModule, DocumentoModule, VentaModule, EmpresaModule, PlanModule, SuscripcionModule, ConfiguracionModule, FarmaciaModule],
   controllers: [AppController, HistorialImportacionController],
   providers: [AppService, HistorialImportacionService],
 })

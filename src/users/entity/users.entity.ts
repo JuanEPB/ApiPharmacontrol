@@ -1,7 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { HistorialImportacion } from 'src/historial_importacion/entity/historial_importacion.entity';
-import { HistorialExportacion } from 'src/historial_exportacion/entity/historial_exportacion.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Rol } from '../dto/roles.enum';
+import { Farmacia } from '../../farmacia/entities/farmacia.entity';
 
 @Entity('usuarios')
 export class Usuario {
@@ -17,7 +16,7 @@ export class Usuario {
   @Column({
     type: 'enum',
     enum: Rol,
-    default: Rol.USUARIO, // ← este es el valor por defecto
+    default: Rol.USUARIO, 
   })
   rol: Rol;
 
@@ -27,4 +26,8 @@ export class Usuario {
   @Column({ length: 100, unique: true })
   email: string;
 
+  @ManyToOne(() => Farmacia, (farmacia) => farmacia.usuarios, { eager: true })
+  @JoinColumn({ name: 'farmacia_id' })
+  farmacia: Farmacia;
+    static farmacia: any;
 }
