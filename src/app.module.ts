@@ -31,26 +31,29 @@ import { Plan } from './plan/entities/plan.entity';
 import { Suscripcion } from './suscripcion/entities/suscripcion.entity';
 import { Farmacia } from './farmacia/entities/farmacia.entity';
 import { Empresa } from './empresa/entities/empresa.entity';
+import { PedidosModule } from './pedidos/pedidos.module';
+import { Pedido } from './pedidos/entities/pedido.entity';
+import { PedidoItem } from './pedidos/entities/pedido-item.entity';
 
 
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/pharmacontrol'),  
+    MongooseModule.forRoot('mongodb+srv://larts:yj7yZjRZIBMr3TJa@pharmacontrol.1aqn71v.mongodb.net/'),  
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
+     type: 'mysql',
+      host: process.env.DB_HOST,
       port: 3306,
-      username: 'root',
-      password:'',
-      database:'control',
-      entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion, Venta, VentaDetalle, Plan, Suscripcion, Farmacia, Empresa],
+      username: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
+      entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion, Venta, VentaDetalle, Plan, Suscripcion, Farmacia, Empresa, Pedido, PedidoItem],
       synchronize: true,
     })
-    ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule, AuthModule, DocumentoModule, VentaModule, EmpresaModule, PlanModule, SuscripcionModule, ConfiguracionModule, FarmaciaModule],
+    ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule, AuthModule, DocumentoModule, VentaModule, EmpresaModule, PlanModule, SuscripcionModule, ConfiguracionModule, FarmaciaModule, PedidosModule],
   controllers: [AppController, HistorialImportacionController],
   providers: [AppService, HistorialImportacionService],
 })

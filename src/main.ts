@@ -19,7 +19,7 @@ async function bootstrap() {
     ],
     credentials: true, // <- necesario para cookies
     methods: ['GET','HEAD','POST','PUT','PATCH','DELETE','OPTIONS'],
-    allowedHeaders: ['Content-Type','Authorization'],
+    allowedHeaders: ['Content-Type','Authorization','Accept'],
   });
 
   app.use(cookieParser());

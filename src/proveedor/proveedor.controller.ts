@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Put } from '@nestjs/common';
 import { ProveedorService } from './proveedor.service';
 import { Proveedor } from './entity/proveedor.entity';
 import { UpdateMedicamentoDto } from 'src/products/dto/update_medicamento.dto';
@@ -31,4 +31,10 @@ export class ProveedorController {
     delete(@Param('id') id: number): Promise<Proveedor | null> {
       return this.proveedorService.delete(id);
     }
+
+    @Get(':id/medicamentos')
+    findMedicamentos(@Param('id', ParseIntPipe) id: number) {
+      return this.proveedorService.findMedicamentos(id);
+    }
+
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Proveedor } from './entity/proveedor.entity';
 import { Repository } from 'typeorm';
@@ -57,4 +57,15 @@ export class ProveedorService {
 
         return this.proveedorRepository.remove(proveedor);
     }
+
+    async findMedicamentos(proveedorId: number) {
+    const prov = await this.proveedorRepository.findOne({ where: { id: proveedorId } });
+    if (!prov) throw new NotFoundException('Proveedor no encontrado');
+
+    return this.medicamentoRepository.find({
+      where: { proveedor: { id: proveedorId } as any },
+      select: { id: true, nombre: true, precio: true, stock: true },
+      order: { nombre: 'ASC' },
+    });
+  }
 }
