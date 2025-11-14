@@ -34,24 +34,41 @@ import { Empresa } from './empresa/entities/empresa.entity';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { Pedido } from './pedidos/entities/pedido.entity';
 import { PedidoItem } from './pedidos/entities/pedido-item.entity';
+import { ConfigService } from '@nestjs/config';
 
 
 
 @Module({
+
+  
   imports: [
-    MongooseModule.forRoot('mongodb+srv://larts:yj7yZjRZIBMr3TJa@pharmacontrol.1aqn71v.mongodb.net/'),  
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env', // en producción el .env lo crea el deploy, en EB usar env vars
     }),
-    TypeOrmModule.forRoot({
-     type: 'mysql',
-      host: process.env.DB_HOST,
-      port: 3306,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('DB_MONGO_URI'),
+        // opcional: pasar opciones
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
+      }),
+      inject: [ConfigService],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('DB_HOST'),
+        port: parseInt(configService.get<string>('DB_PORT', '3306'), 10),
+        username: configService.get<string>('DB_USER'),
+        password: configService.get<string>('DB_PASS'),
+        database: configService.get<string>('DB_NAME'),
       entities: [Medicamentos,Proveedor, Categoria, Usuario, HistorialExportacion, Venta, VentaDetalle, Plan, Suscripcion, Farmacia, Empresa, Pedido, PedidoItem],
-      synchronize: true,
+      synchronize: false,
+    }),
+          inject: [ConfigService],
     })
     ,ProductsModule, ProveedorModule, UsersModule, CategoriasModule, HistorialImportacionModule, HistorialExportacionModule, AuthModule, DocumentoModule, VentaModule, EmpresaModule, PlanModule, SuscripcionModule, ConfiguracionModule, FarmaciaModule, PedidosModule],
   controllers: [AppController, HistorialImportacionController],
