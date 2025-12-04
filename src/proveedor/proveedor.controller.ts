@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { ProveedorService } from './proveedor.service';
 import { Proveedor } from './entity/proveedor.entity';
 import { UpdateMedicamentoDto } from 'src/products/dto/update_medicamento.dto';
 import { Medicamentos } from 'src/products/entity/products.entity';
 import { UpdateProvedorDto } from './dto/update-proveedor.dto';
+import { CreateProveedorDto } from './dto/create-proveedor.dto';
 
 @Controller('proveedores')
 export class ProveedorController {
@@ -18,6 +19,11 @@ export class ProveedorController {
     @Get('/:id')
     async getById(@Param('id') id: number): Promise<Proveedor | null> {
         return await this.proveedorService.getById(id);
+    }
+
+    @Post('/create')
+    async create(@Body() CreateProveedorDto: CreateProveedorDto): Promise<Proveedor>{
+        return await this.proveedorService.create(CreateProveedorDto);
     }
 
     @Put('/update/:id')

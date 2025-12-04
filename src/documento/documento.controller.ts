@@ -16,10 +16,10 @@ import { HistorialExportacionService } from 'src/historial_exportacion/historial
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/auth/user.decorator';
 import { Response } from 'express';
-import { Documento } from './schemas/documento.schema';
 import { UsersService } from 'src/users/users.service';
 import { File } from 'multer';
 import mongoose from 'mongoose';
+import { IaApiGuard } from '../auth/ia-api.guard';
 
 @Controller('documentos')
 export class DocumentoController {
@@ -29,7 +29,7 @@ export class DocumentoController {
     private readonly usersService: UsersService,
   ) {}
 
-  // 🔹 SUBIR DOCUMENTO
+  // 🔹 SUBIR DOCUMENTO (USUARIO NORMAL CON JWT)
   @Post('subir')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -43,15 +43,16 @@ export class DocumentoController {
       return res.status(400).json({ mensaje: 'Archivo no enviado' });
     }
 
-    const usuario = await this.usersService.findByEmail(usuarioPayload.userId);
+    const usuario = await this.usersService.findByEmail(usuarioPayload.email);
     if (!usuario) {
-      return res.status(404).json({ mensaje: 'Usuario no encontrado en MySQL' });
+      return res
+        .status(404)
+        .json({ mensaje: 'Usuario no encontrado en MySQL' });
     }
 
-    // Convertimos a Buffer limpio antes de guardar
     const buffer = Buffer.isBuffer(file.buffer)
       ? file.buffer
-      : Buffer.from(file.buffer);
+      : Buffer.from(file.buffer as any);
 
     const documento = await this.documentoService.guardarDesdeBuffer(
       buffer,
@@ -61,6 +62,8 @@ export class DocumentoController {
       body.descripcion || '',
       body.tipoReporte || '',
     );
+
+    console.log('✅ Documento guardado en MongoDB:', documento?._id);
 
     await this.historialExportacionService.registrar(
       usuario,
@@ -73,23 +76,53 @@ export class DocumentoController {
     });
   }
 
-  // 🔹 LISTAR DOCUMENTOS (sin campo binario data)
- @Get('listar')
-@UseGuards(JwtAuthGuard)
-async listarDocumentos(): Promise<any[]> {
-  const documentos = await this.documentoService.listarDocumentos();
-  return documentos.map((doc) => ({
-    _id: doc._id,
-    filename: doc.filename,
-    mimetype: doc.mimetype,
-    descripcion: doc.descripcion,
-    tipoReporte: doc.tipoReporte,
-    generadoPor: doc.generadoPor,
-    createdAt: (doc as any).createdAt,
-    updatedAt: (doc as any).updatedAt,
-  }));
-}
+  // 🔹 SUBIR DOCUMENTO DESDE LA IA (TOKEN FIJO X-IA-TOKEN)
+  @Post('subir-ia')
+  @UseGuards(IaApiGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async subirDocumentoIa(
+    @UploadedFile() file: File,
+    @Body() body: any,
+  ) {
+    if (!file) {
+      return { mensaje: 'Archivo no enviado' };
+    }
 
+    const buffer = Buffer.isBuffer(file.buffer)
+      ? file.buffer
+      : Buffer.from(file.buffer as any);
+
+    const documento = await this.documentoService.guardarDesdeBuffer(
+      buffer,
+      file.originalname,
+      file.mimetype,
+      body.generadoPor || 'Asistente IA',
+      body.descripcion || '',
+      body.tipoReporte || '',
+    );
+
+    return {
+      mensaje: 'Documento de IA guardado correctamente',
+      id: documento._id,
+    };
+  }
+
+  // 🔹 LISTAR DOCUMENTOS (sin campo binario data)
+  @Get('listar')
+  @UseGuards(JwtAuthGuard)
+  async listarDocumentos(): Promise<any[]> {
+    const documentos = await this.documentoService.listarDocumentos();
+    return documentos.map((doc) => ({
+      _id: doc._id,
+      filename: doc.filename,
+      mimetype: doc.mimetype,
+      descripcion: doc.descripcion,
+      tipoReporte: doc.tipoReporte,
+      generadoPor: doc.generadoPor,
+      createdAt: (doc as any).createdAt,
+      updatedAt: (doc as any).updatedAt,
+    }));
+  }
 
   // 🔹 OBTENER DOCUMENTOS POR TIPO
   @Get('tipo/:tipo')
@@ -105,24 +138,27 @@ async listarDocumentos(): Promise<any[]> {
     return documentos;
   }
 
-  // 🔹 OBTENER DOCUMENTO POR ID (parsea JSON o devuelve binario inline)
+  // 🔹 OBTENER DOCUMENTO POR ID (JSON o binario inline)
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async obtenerDocumentoPorId(
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<void> {
+    if (!mongoose.isValidObjectId(id)) {
+      throw new NotFoundException(`El ID '${id}' no es válido.`);
+    }
+
     const documento = await this.documentoService.obtenerDocumentoPorId(id);
     if (!documento) {
       throw new NotFoundException('Documento no encontrado');
     }
 
-    // Si es JSON, lo devolvemos como objeto
     if (documento.mimetype === 'application/json') {
       try {
         let jsonString: string;
-
         const data: any = documento.data;
+
         if (Buffer.isBuffer(data)) {
           jsonString = data.toString('utf8');
         } else if (data?.type === 'Buffer' && Array.isArray(data?.data)) {
@@ -150,7 +186,6 @@ async listarDocumentos(): Promise<any[]> {
       }
     }
 
-    // Si es otro tipo de archivo (imagen, pdf, etc.)
     res.set({
       'Content-Type': documento.mimetype,
       'Content-Disposition': `inline; filename="${documento.filename}"`,
@@ -165,10 +200,10 @@ async listarDocumentos(): Promise<any[]> {
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<void> {
-
     if (!mongoose.isValidObjectId(id)) {
-      throw new NotFoundException('ID ${id} de documento no válido');
+      throw new NotFoundException(`ID ${id} de documento no válido`);
     }
+
     const documento = await this.documentoService.obtenerDocumentoPorId(id);
     if (!documento) {
       throw new NotFoundException('Documento no encontrado');
@@ -178,7 +213,6 @@ async listarDocumentos(): Promise<any[]> {
     const buffer = Buffer.isBuffer(data)
       ? data
       : Buffer.from(data.buffer || data.data);
-
 
     res.set({
       'Content-Type': documento.mimetype,

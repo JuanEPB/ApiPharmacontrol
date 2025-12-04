@@ -1,17 +1,27 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
 import { MedicamentosService } from './products.service';
 import { CreateMedicamentoDto } from './dto/create_product.dto';
 import { UpdateMedicamentoDto } from './dto/update_medicamento.dto';
 import { Medicamentos } from './entity/products.entity';
+import { PaginationQueryDto } from 'src/auth/pagination-query.dto';
 
 @Controller('medicamentos')
 export class MedicamentosController {
   constructor(private readonly medicamentosService: MedicamentosService) {}
 
-    @Get('/all')
-    async getAll() {
-      return await this.medicamentosService.findAll();
+    /**
+     * Endpoint optimizado y paginado. Reemplaza a /all.
+     * Acepta queries como: /medicamentos?page=1&limit=10
+     */ 
+    @Get()
+    findAll(@Query() paginationQuery: PaginationQueryDto) {
+      return this.medicamentosService.findAll(paginationQuery);
     }
+    @Get('all')
+    findAllMedicamentos(): Promise<Medicamentos[]> {
+      return this.medicamentosService.findAllMedicamentos();
+    }
+
     @Get('count')
     async contar(): Promise<{ total: number }> {
       const total = await this.medicamentosService.contarMedicamentos();

@@ -16,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {  // <-- nom
   }
 
   async validate(payload: any) {
-    return { userId: payload.sub, correo: payload.correo };
+    // Corregido: Usar 'email' para que coincida con el payload del token
+    return { userId: payload.sub, email: payload.email };
   }
 }
-

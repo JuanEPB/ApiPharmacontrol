@@ -8,10 +8,10 @@ import { CreateMedicamentoDto } from './dto/create_product.dto';
 import { UpdateMedicamentoDto } from './dto/update_medicamento.dto';
 import { LessThan } from 'typeorm';
 import * as dayjs from 'dayjs';
+import { PaginationQueryDto } from 'src/auth/pagination-query.dto';
 
 @Injectable()
 export class MedicamentosService {
-
     constructor(
         @InjectRepository(Medicamentos)
         private medicamentoRepository: Repository<Medicamentos>,
@@ -21,8 +21,33 @@ export class MedicamentosService {
         private categoriaRepository: Repository<Categoria>, // Repositorio de la categoría
       ) {}
 
-  // Obtener todos los medicamentos con relaciones
-  findAll(): Promise<Medicamentos[]> {
+  /**
+   * Obtiene una lista paginada de medicamentos.
+   * @param paginationQuery - DTO con parámetros de paginación (page, limit).
+   * @returns Un objeto con los datos de la página y metadatos de paginación.
+   */
+  async findAll(paginationQuery: PaginationQueryDto) {
+    const { limit = 20, page = 1 } = paginationQuery;
+    const offset = (page - 1) * limit;
+
+    const [data, total] = await this.medicamentoRepository.findAndCount({
+      take: limit,
+      skip: offset,
+      relations: ['proveedor', 'categoria'],
+      order: {
+        nombre: 'ASC',
+      },
+    });
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findAllMedicamentos(): Promise<Medicamentos[]> {
     return this.medicamentoRepository.find({
       relations: ['proveedor', 'categoria'],
     });
@@ -35,7 +60,6 @@ export class MedicamentosService {
       relations: ['proveedor', 'categoria'],
     });
   }
-
 
   // Crear un nuevo medicamento
   async create(createMedicamentoDto: CreateMedicamentoDto): Promise<Medicamentos> {
@@ -234,6 +258,10 @@ async caducidadMedicamentos(): Promise<Medicamentos[]> {
       where: { caducidad: LessThan(hoy.toDate()) },
     });
 
+    //Bajo stock
+    const bajoStock = await this.medicamentoRepository.count({
+      where: { stock: LessThan(10) },
+    });
     // Agrupar por categoría
     const porCategoriaQuery = await this.medicamentoRepository
       .createQueryBuilder('medicamento')
@@ -248,7 +276,7 @@ async caducidadMedicamentos(): Promise<Medicamentos[]> {
       {},
     );
 
-    return { total, porCaducar, caducados, porCategoria };
+    return { total, porCaducar, caducados, porCategoria, bajoStock };
   }
 
   
