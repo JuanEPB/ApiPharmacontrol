@@ -70,4 +70,18 @@ export class UsersService {
   async findByRole(role: Rol): Promise<Usuario[]> {
     return this.usersRepository.find({ where: { rol: role } });
   }
+
+  async findByIdName(id: number): Promise<Usuario | null> {
+    return this.usersRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        email: true,
+        rol: true,
+        // NO incluir password
+      },
+    });
+  }
 }

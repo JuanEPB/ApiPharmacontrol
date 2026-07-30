@@ -16,11 +16,8 @@ async function bootstrap() {
   // Leer orígenes desde env (coma-separados) o usar lista por defecto
   const corsOriginsEnv = process.env.CORS_ORIGINS;
   const defaultOrigins = [
-    'http://127.0.0.1:8001',
-    'http://localhost:8001',
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
     'http://localhost:8081',
+    'http://localhost:5173'
   ];
   const origins = corsOriginsEnv
     ? corsOriginsEnv.split(',').map(o => o.trim())

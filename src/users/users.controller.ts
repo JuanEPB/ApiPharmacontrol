@@ -73,6 +73,15 @@ import { Usuario } from './entity/users.entity';
     getPerfil(@Request() req) {
       return req.user;
     }
+
+    @Get('id-name/:id')
+    async findByIdName(@Param('id') id: number) {
+      const user = await this.usersService.findByIdName(id);
+      if (!user) {
+        throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      }
+      return user;
+    }
   }
 
   
